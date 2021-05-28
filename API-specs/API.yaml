@@ -1,6 +1,6 @@
 swagger: "2.0"
 info:
-  description: Stranding API
+  description: Strandings API
   version: 1.0.0
   title: Strandings Project
   contact:
@@ -12,17 +12,32 @@ schemes:
 security:
 - firebase: []
 paths:
-  /event:
+  /event/{id}:
     get:
       summary: Get information on a single stranding event.
       description: Retrieve informatiom from a single stranding event.
-      parameters: []
+      parameters:
+      - name: id
+        in: path
+        description: ID of the event to get.
+        required: true
+        type: string
+        format: uuid
       responses:
         "200":
           description: O
           schema:
             $ref: '#/definitions/Event'
+        "404":
+          description: Event not found.
       security: []
+    post:
+      summary: Create a new event.
+      description: Create a new event.
+      parameters: []
+      responses:
+        "200":
+          description: OK
 securityDefinitions:
   firebase:
     type: oauth2
@@ -39,14 +54,19 @@ definitions:
     properties:
       lat:
         type: number
+        format: float
       long:
         type: number
+        format: float
   Event:
     type: object
     required:
     - event_date
     - event_location
     properties:
+      event_id:
+        type: string
+        format: uuid
       event_date:
         type: string
         format: date-time
@@ -54,4 +74,51 @@ definitions:
         type: array
         items:
           $ref: '#/definitions/GeoPoint'
+      event_centroid:
+        $ref: '#/definitions/GeoPoint'
+      event_regions:
+        type: array
+        items:
+          type: string
+      event_animal_type:
+        type: array
+        items:
+          type: string
+      event_animal_number:
+        type: integer
+        format: int32
+      event_animal_number_died:
+        type: integer
+        format: int32
+      investigation_type:
+        type: string
+      investigation_description:
+        type: string
+      stranding_causes:
+        type: array
+        description: unknown, pending, disease, pollution, vessel strike, bycatch, entanglement, sonar, natural (predator/s), etc., other
+        items:
+          type: string
+      investigation_results_description:
+        type: string
+        description: A long description of the stranding event. This field must form part of the the full text search solution.
+      investigation_references:
+        type: string
+      researcher_name:
+        type: string
+      researcher_email:
+        type: string
+        format: email
+      researcher_first_event_date:
+        type: string
+        format: date
+        description: date of first event approved
+      researcher_latest_event_date:
+        type: string
+        format: date
+        description: date of latest event approved
+      researcher_events_total:
+        type: integer
+        format: int32
+        description: total of researcher's approved events
     description: An individual stranding event
