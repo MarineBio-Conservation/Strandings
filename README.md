@@ -1,2 +1,4 @@
 # Strandings
-The main standings repository.
+The backend for marinestrandings.com.
+
+Contains the implementation for the API.
