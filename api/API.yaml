@@ -1,56 +1,68 @@
-swagger: "2.0"
+swagger: '2.0'
 info:
-  description: Strandings API
-  version: 1.0.0
+  version: '1.0.0'
   title: Strandings Project
+  description: Strandings API
   contact:
-    name: MarineBio
     url: https://www.marinebio.org
+    name: MarineBio
     email: info@marinebio.org
-schemes:
-- https
+
+x-google-allow: configured
+
+securityDefinitions:
+  firebase:
+    authorizationUrl: ""
+    flow: "implicit"
+    type: "oauth2"
+    x-google-issuer: "https://securetoken.google.com/stranding-project"
+    x-google-jwks_uri: "https://www.googleapis.com/service_accounts/v1/metadata/x509/securetoken@system.gserviceaccount.com"
+    x-google-audiences: "stranding-project"
 security:
-- firebase: []
+  - firebase: []
 paths:
+  /events/:
+    get:
+      summary: List recent stranding events.
+      operationId: getEvents
+      security: []
   /event/{id}:
     get:
       summary: Get information on a single stranding event.
       description: Retrieve informatiom from a single stranding event.
+      operationId: getEvent
       parameters:
-      - name: id
-        in: path
-        description: ID of the event to get.
-        required: true
-        type: string
-        format: uuid
+        - in: path
+          name: id
+          type: string
+          format: uuid
+          required: true
+          description: ID of the event to get.
+      security: []
       responses:
-        "200":
+        200:
           description: O
           schema:
             $ref: '#/definitions/Event'
-        "404":
-          description: Event not found.
-      security: []
+        404:
+          description: "Event not found."
+  /event:
     post:
       summary: Create a new event.
       description: Create a new event.
-      parameters: []
+      operationId: createEvent
       responses:
-        "200":
+        200:
           description: OK
-securityDefinitions:
-  firebase:
-    type: oauth2
-    authorizationUrl: ""
-    flow: implicit
-    x-google-issuer: https://securetoken.google.com/stranding-project
-    x-google-jwks_uri: https://www.googleapis.com/service_accounts/v1/metadata/x509/securetoken@system.gserviceaccount.com
-    x-google-audiences: stranding-project
+    
+schemes:
+ - https
 definitions:
   GeoPoint:
     type: object
     required:
-    - lat
+      - lat
+      - lon
     properties:
       lat:
         type: number
@@ -59,10 +71,11 @@ definitions:
         type: number
         format: float
   Event:
+    description: An individual stranding event
     type: object
     required:
-    - event_date
-    - event_location
+      - event_date
+      - event_location
     properties:
       event_id:
         type: string
@@ -95,13 +108,13 @@ definitions:
       investigation_description:
         type: string
       stranding_causes:
+        description: "unknown, pending, disease, pollution, vessel strike, bycatch, entanglement, sonar, natural (predator/s), etc., other"
         type: array
-        description: unknown, pending, disease, pollution, vessel strike, bycatch, entanglement, sonar, natural (predator/s), etc., other
         items:
           type: string
       investigation_results_description:
+        description: "A long description of the stranding event. This field must form part of the the full text search solution."
         type: string
-        description: A long description of the stranding event. This field must form part of the the full text search solution.
       investigation_references:
         type: string
       researcher_name:
@@ -110,15 +123,14 @@ definitions:
         type: string
         format: email
       researcher_first_event_date:
+        description: "date of first event approved"
         type: string
         format: date
-        description: date of first event approved
       researcher_latest_event_date:
+        description: "date of latest event approved"
         type: string
         format: date
-        description: date of latest event approved
       researcher_events_total:
+        description: "total of researcher's approved events"
         type: integer
         format: int32
-        description: total of researcher's approved events
-    description: An individual stranding event
