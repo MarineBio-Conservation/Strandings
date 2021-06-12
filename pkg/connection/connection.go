@@ -23,34 +23,32 @@ func mustGetenv(k string) string {
 }
 
 func pullDbPassword() string {
-// name := "projects/my-project/secrets/my-secret/versions/5"
-        name := "projects/stranding-project/secrets/DB_PASS/versions/latest"
-		//name := "projects/676026255512/secrets/DB_PASS/versions/latest"
-		fmt.Println("Pulling")
-        // Create the client.
-        ctx := context.Background()
-        client, err := secretmanager.NewClient(ctx)
-        if err != nil {
-				fmt.Println("ERR 1")
-                fmt.Errorf("failed to create secretmanager client: %v", err)
-				return ""
-        }
-        defer client.Close()
+	// name := "projects/my-project/secrets/my-secret/versions/5"
+	name := "projects/stranding-project/secrets/DB_PASS/versions/latest"
+	//name := "projects/676026255512/secrets/DB_PASS/versions/latest"
+	fmt.Println("Pulling")
+	// Create the client.
+	ctx := context.Background()
+	client, err := secretmanager.NewClient(ctx)
+	if err != nil {
+		fmt.Println("ERR 1")
+		return fmt.Errorf("failed to create secretmanager client: %v", err).Error()
+	}
+	defer client.Close()
 
-        // Build the request.
-        req := &secretmanagerpb.AccessSecretVersionRequest{
-                Name: name,
-        }
+	// Build the request.
+	req := &secretmanagerpb.AccessSecretVersionRequest{
+		Name: name,
+	}
 
-        // Call the API.
-        result, err := client.AccessSecretVersion(ctx, req)
-        if err != nil {
-				fmt.Println("Err 2", err)
-                fmt.Errorf("failed to access secret version: %v", err)
-				return ""
-        }
+	// Call the API.
+	result, err := client.AccessSecretVersion(ctx, req)
+	if err != nil {
+		fmt.Println("Err 2", err)
+		return fmt.Errorf("failed to access secret version: %v", err).Error()
+	}
 
-        return string(result.Payload.Data)
+	return string(result.Payload.Data)
 }
 
 // initTCPConnectionPool initializes a TCP connection pool for a Cloud SQL
@@ -59,13 +57,13 @@ func InitTCPConnectionPool() (*pgx.Conn, error) {
 	// [START cloud_sql_postgres_databasesql_create_tcp]
 	var (
 		dbUser    = mustGetenv("DB_USER") // e.g. 'my-db-user'
-		dbPwd     = os.Getenv("DB_PASS") // e.g. 'my-db-password'
+		dbPwd     = os.Getenv("DB_PASS")  // e.g. 'my-db-password'
 		dbTCPHost = mustGetenv("DB_HOST") // e.g. '127.0.0.1' ('172.17.0.1' if deployed to GAE Flex)
 		dbPort    = mustGetenv("DB_PORT") // e.g. '5432'
 		dbName    = mustGetenv("DB_NAME") // e.g. 'my-database'
 	)
 	if dbPwd == "" {
-			dbPwd = pullDbPassword()
+		dbPwd = pullDbPassword()
 	}
 
 	var dbURI = fmt.Sprintf("host=%s user=%s password=%s port=%s database=%s", dbTCPHost, dbUser, dbPwd, dbPort, dbName)

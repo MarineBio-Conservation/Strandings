@@ -2,12 +2,13 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"log"
 	"net/http"
 	"os"
-	"encoding/json"
 
 	"github.com/MarineBio-Conservation/Strandings-Backend/pkg/connection"
+	"github.com/MarineBio-Conservation/Strandings-Backend/pkg/cors"
 	"github.com/jackc/pgx/v4"
 )
 
@@ -24,6 +25,8 @@ func eventsHandler(w http.ResponseWriter, r *http.Request) {
 		http.NotFound(w, r)
 		return
 	}
+
+	cors.Cors(w, r)
 
 	rows, err := thisApp.db.Query(context.Background(), "select researcher_name from researchers where researcher_id = 1")
 	if err != nil {
