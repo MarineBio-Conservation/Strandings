@@ -1,0 +1,9 @@
+runtime: go115
+main: ./cmd/strandings
+env_variables:
+        DB_HOST: 172.26.64.4
+        DB_PORT: 5432
+        DB_USER: postgres
+        DB_NAME: strandings 
+vpc_access_connector:
+  name: projects/stranding-project/locations/us-central1/connectors/appengine-to-sql
