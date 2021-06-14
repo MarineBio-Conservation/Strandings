@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/MarineBio-Conservation/Strandings-Backend/pkg/connection"
 	"github.com/MarineBio-Conservation/Strandings-Backend/pkg/cors"
@@ -18,6 +19,17 @@ type app struct {
 	db *pgx.Conn
 }
 
+type position struct {
+	Lat float32 `json:"lat"`
+	Lng float32 `json:"lng"`
+}
+
+type record struct {
+	Id   int       `json:"id"`
+	Date time.Time `json:"date"`
+	Pos  position  `json:"position"`
+}
+
 var thisApp *app
 
 func eventsHandler(w http.ResponseWriter, r *http.Request) {
@@ -28,19 +40,23 @@ func eventsHandler(w http.ResponseWriter, r *http.Request) {
 
 	cors.Cors(w, r)
 
-	rows, err := thisApp.db.Query(context.Background(), "select researcher_name from researchers where researcher_id = 1")
+	rows, err := thisApp.db.Query(context.Background(),
+		"select event_id, event_date, event_centroid_lat, event_centroid_long from public.data ORDER BY event_date DESC LIMIT 1000;")
 	if err != nil {
 		log.Fatalf("conn.Query failed: %v", err)
 	}
 	defer rows.Close()
-	var names []string
+	var results []record
 	for rows.Next() {
-		var name string
-		rows.Scan(&name)
-		names = append(names, name)
+		var rec record
+		err = rows.Scan(&rec.Id, &rec.Date, &rec.Pos.Lat, &rec.Pos.Lng)
+		if err != nil {
+			log.Fatalf("conn.Query failed: %v", err)
+		}
+		results = append(results, rec)
 	}
 
-	data, _ := json.Marshal(names)
+	data, _ := json.Marshal(results)
 	w.Write(data)
 }
 
