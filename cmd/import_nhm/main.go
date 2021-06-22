@@ -74,6 +74,27 @@ func main() {
 	}
 
 	if _, err = app.db.Exec(context.Background(), `
+	CREATE INDEX lat_idx on public.data
+	(
+		event_centroid_lat ASC
+	);
+	CREATE INDEX lng_idx on public.data
+	(
+		event_centroid_long ASC
+	);
+	CREATE INDEX date_idx on public.data
+	(
+		event_date DESC
+	);
+	CREATE INDEX researcher_name_idx on public.researchers
+	(
+		researcher_name ASC
+	);
+	`); err != nil {
+		log.Fatalf("DB.Exec: unable to create indices: %s", err)
+	}
+
+	if _, err = app.db.Exec(context.Background(), `
 		INSERT INTO researchers(researcher_name, researcher_email, researcher_first_event_date, researcher_latest_event_date)
 		VALUES('Natural History Museum', NULL, '1913-02-13', '1989-12-25' );
 	`); err != nil {
