@@ -35,7 +35,7 @@ func main() {
 	})
 
 	http.HandleFunc("/event", func(w http.ResponseWriter, r *http.Request) {
-		events.GetEventsHandler(w, r, thisApp.db)
+		events.GetEvent(w, r, thisApp.db)
 	})
 
 	port := os.Getenv("PORT")
