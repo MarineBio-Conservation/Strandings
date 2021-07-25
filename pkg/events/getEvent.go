@@ -24,12 +24,13 @@ func GetEvent(w http.ResponseWriter, r *http.Request, db *pgx.Conn) {
 		http.Error(w, "id has invalid format", 400)
 		return
 	}
-	var record Record
+	var record FullRecord
 	err = db.QueryRow(context.Background(),
-		`select event_id, event_date, event_regions, event_animal_type, event_animal_number_died, investigation_type, stranding_causes, event_centroid_lat, event_centroid_long 
-			from public.data
+		`select data.event_id, data.event_date, data.event_location_lat, data.event_location_long, data.event_centroid_lat, data.event_centroid_long, data.event_regions, data.event_animal_type, data.event_animal_number, data.event_animal_number_died, data.investigation_type, data.investigation_description, data.stranding_causes, data.investigation_results_description, data.investigation_references, researchers.researcher_name
+			from data
+			INNER JOIN researchers ON data.researcher_id=researchers.researcher_id
 			WHERE 
-				event_id = $1;`, id).Scan(&record)
+				data.event_id = $1;`, id).Scan(&record)
 	if err != nil {
 		http.Error(w, strconv.Itoa(id)+" not found", 404)
 	}
