@@ -12,7 +12,7 @@ import (
 func PostEvent(w http.ResponseWriter, r *http.Request, db *pgx.Conn) {
 	cors.Cors(w, r)
 
-	var newEvent Record
+	var newEvent FullRecord
 	decoder := json.NewDecoder(r.Body)
 	err := decoder.Decode(&newEvent)
 	if err != nil {
